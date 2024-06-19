@@ -93,7 +93,7 @@ export default function Home() {
       
       
     };
-  }, []);
+  }, [router]);
 
   const handleID = () => {
     socket.emit("My_ID", socket.id);
