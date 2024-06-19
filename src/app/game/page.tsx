@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 
 const IndexPage: React.FC = () => {
   const [board, setBoard] = useState<String[]>(Array(9).fill(null));
-  const [roomID,setroomID]=useState<string>("")
+  // const [roomID,setroomID]=useState<string>("")
   const router=useRouter()
 
   useEffect(()=>{
@@ -42,7 +42,6 @@ const IndexPage: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-background relative">
       <div className="  ml-[700px] mb-[100px]  ">
         <ModeToggle />
-        <ToastContainer/>
       </div>
       <p className=" text-5xl text-center font-semibold mb-[50px]">
         {" "}
