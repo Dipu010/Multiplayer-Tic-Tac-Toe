@@ -12,16 +12,21 @@ const IndexPage: React.FC = () => {
   const [board, setBoard] = useState<String[]>(Array(9).fill(null));
   // const [roomID,setroomID]=useState<string>("")
   const router=useRouter()
+  const [type,setType]=useState<String>("Lobby")
+  const [move,setMove]=useState<boolean>(true)
 
   useEffect(()=>{
-
+    
     return()=>{
       socket.disconnect()
+      router.push('/diptarshi')
     }
-  },[])
+  },[socket])
 
-  socket.on("ServerMove", (board) => {
-    setBoard(board);
+  socket.on("ServerMove", ({newBoard,typeUser}) => {
+    setBoard(newBoard);
+    setType(typeUser)
+    setMove(true)
   });
 
   socket.on("OpponentDisconnect",(value)=>{
@@ -33,9 +38,23 @@ const IndexPage: React.FC = () => {
 
   const handleClick = (index: number) => {
     const newBoard = [...board];
-    newBoard[index] = newBoard[index] !== "0" ? "0" : "X"; // Toggle between null and 1 for demonstration
-    setBoard(newBoard);
-    socket.emit("UserMove", newBoard);
+    if(!newBoard[index] && type=="Lobby" && move ){
+      newBoard[index]="X"
+      setBoard(newBoard);
+      socket.emit("UserMove", {newBoard,type});
+      setMove(false)
+    }
+    else if(!newBoard[index] && type=="Join" && move ){
+      newBoard[index]="0"
+      setBoard(newBoard);
+      socket.emit("UserMove", {newBoard,type});
+      setMove(false)
+    } 
+    else if(!type){
+      console.log("Problem in useState type")
+    }// Toggle between null and 1 for demonstration
+    
+    
   };
 
   return (

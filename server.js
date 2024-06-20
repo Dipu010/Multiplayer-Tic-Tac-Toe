@@ -43,13 +43,32 @@ app.prepare().then(() => {
       }
     });
 
-    socket.on("UserMove", (board) => {
+    socket.on("UserMove", ({newBoard,type}) => {
       if (map.has(socket.id)) {
         let Room_ID = map.get(socket.id);
-
-        io.to(Room_ID).emit("ServerMove", board);
+        let typeUser=type=="Lobby"?"Join":"Lobby"
+        socket.to(Room_ID).emit("ServerMove", {newBoard,typeUser});
       }
     });
+
+    let validID=false
+    socket.on("SearchRoomID",(roomIDJoin)=>{
+      for (let val of map.values()) {
+        if (val === roomIDJoin) {
+            validID=true
+        }
+    }
+        socket.to(socket).emit("CheckID",(validID))
+    })
+
+    let typeuser=""
+
+    socket.on("InfoUser",({socketID,type})=>{
+      typeuser=type
+      socket.emit("TypeUser",(typeuser))
+    })
+    socket.emit("TypeUser",(typeuser))
+
 
     socket.on("disconnect", () => {
       console.log("Disconnected ", socket.id);

@@ -41,10 +41,10 @@ export default function Home() {
       onConnect();
     }
 
-    function onConnect() {
+      function onConnect() {
       setIsConnected(true);
       setTransport(socket.io.engine.transport.name);
-      let roomIDGen= generateRoomID()
+      let roomIDGen=generateRoomID()
       
       socket.emit("Lobby", { socketId: socket.id, roomID:roomIDGen });
       setroomID(roomIDGen)
@@ -65,6 +65,7 @@ export default function Home() {
   socket.on("UserJoinFromLobby",(value,Room)=>{
         if(value){
             console.log("Confirmation from server in lobby")
+            
             router.push('/game')
             
         }
@@ -109,9 +110,9 @@ export default function Home() {
       <div className=" flex justify-center items-center text-3xl h-screen w-screen overflow-x-hidden overflow-y-hidden flex-col ">
         <div className=" h-[700px] w-[900px] relative flex justify-center items-center ">
           <Card className=" relative w-full  bg-card h-auto py-10">
-            <button className=" pl-[840px] mt-[-20px] absolute ">
+            <div className=" pl-[840px] mt-[-20px] absolute ">
               <ModeToggle />
-            </button>
+            </div>
             <CardHeader>
               <CardTitle className=" text-center text-5xl mb-10">
                 Tic Tac Toe Game
