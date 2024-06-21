@@ -2,4 +2,4 @@
 
 import { io } from "socket.io-client";
 
-export const socket =io(process.env.DOMIAN || '');
+export const socket =io();
