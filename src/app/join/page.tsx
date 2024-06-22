@@ -34,96 +34,92 @@ export default function Join() {
   //console.log(socket)
 
   useEffect(() => {
+    
     if (socket.connected) {
       onConnect();
     }
 
     function onConnect() {
-      setIsConnected(true);
-      setTransport(socket.io.engine.transport.name);
-      
-      
       socket.io.engine.on("upgrade", (transport: any) => {
         setTransport(transport.name);
       });
     }
-
-    
-  
-
-    
-    
-
    
-    socket.on("connect", () => {
+   socket.on("connect", () => {
       onConnect();
       console.log("User Connected ", socket.id);
     });
-
-    socket.on("Received_Mesage", (message) => {
-      setDisplayMsg(message);
-
-      
-
-    });
-
-
     return () => {
       
       
     };
   }, []);
 
-  const handleID = () => {
-    socket.emit("My_ID", socket.id);
-  };
+  // const handleID = () => {
+  //   socket.emit("My_ID", socket.id);
+  // };
 
   const handlePlay=()=>{
     socket.emit("Lobby", { socketId: socket.id, roomID:roomIDJoin });
     
   }
+  const handleBack=()=>{
+    socket.disconnect()
+  }
 
   
   return (
     <>
-      <>
-      <div className=" flex justify-center items-center text-3xl h-screen w-screen overflow-x-hidden overflow-y-hidden flex-col ">
-        <div className=" h-[700px] w-[900px] relative flex justify-center items-center ">
-          <Card className=" relative w-full  bg-card h-auto py-10">
-            <div className=" pl-[840px] mt-[-20px] absolute ">
-              <ModeToggle />
-            </div>
-            <CardHeader>
-              <CardTitle className=" text-center text-5xl mb-10">
-                Tic Tac Toe Game
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-3xl text-center">Socket ID: {socket.id}</p>
-              <Input
-                type="name"
-                className="w-1/2 mx-auto h-[50px] mb-5"
-                placeholder="Enter your name"
-              />
-              <Input
-                type="id"
-                className="w-1/2 mx-auto h-[50px] mb-5"
-                placeholder="Enter your Room ID"
-                onChange={(e)=>{setroomIDJoin(e.target.value)}}
-                value={roomIDJoin}
-
-              />
-            </CardContent>
-
-            <div className=" flex justify-center items-center gap-5">
-              <Link href='/game'><Button className="  w-[180px] px-2 py-4 h-[60px] text-xl hover:bg-muted-foreground" onClick={handlePlay}>Play</Button></Link>
-              <Link href='/diptarshi'><Button className="  w-[180px] px-2 py-4 h-[60px] text-xl hover:bg-muted-foreground"  >Back</Button></Link>
-            </div>
-            <CardFooter></CardFooter>
-          </Card>
-        </div>
+     <div className="flex flex-col justify-center items-center text-xl min-h-screen min-w-screen overflow-x-hidden overflow-y-hidden p-4">
+  <div className="relative flex flex-col justify-center items-center h-auto w-full max-w-[90%] sm:max-w-[700px] md:max-w-[900px] p-4">
+    <Card className="relative w-full bg-card h-auto py-10">
+      <div className="absolute top-0 right-[-14px] mr-4">
+        <ModeToggle />
       </div>
-    </>
+      <CardHeader>
+        <CardTitle className="text-center text-3xl sm:text-4xl mb-10">
+          Tic Tac Toe Game
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-xl sm:text-2xl text-center">Socket ID: {socket.id}</p>
+        <Input
+          type="name"
+          className="w-full sm:w-1/2 mx-auto h-[50px] mb-5"
+          placeholder="Enter your name"
+        />
+        <Input
+          type="id"
+          className="w-full sm:w-1/2 mx-auto h-[50px] mb-5"
+          placeholder="Enter your Room ID"
+          onChange={(e) => { setroomIDJoin(e.target.value); }}
+          value={roomIDJoin}
+        />
+      </CardContent>
+      <div className="flex  sm:flex-row justify-center items-center gap-5 ">
+        <Link href="/game">
+          <Button
+            className="w-full px-10 py-4 h-[50px] sm:h-[60px] text-lg sm:text-xl hover:bg-muted-foreground "
+            onClick={handlePlay}
+          >
+            Play
+          </Button>
+        </Link>
+        <Link href="/diptarshi">
+          <Button
+            className="w-full  py-4 h-[50px] sm:h-[60px] text-lg sm:text-xl hover:bg-muted-foreground px-10"
+            onClick={handleBack}
+          >
+            Back
+          </Button>
+        </Link>
+        
+      </div>
+      <CardFooter></CardFooter>
+    </Card>
+  </div>
+</div>
+
     </>
   );
 }

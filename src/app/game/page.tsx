@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { socket } from "@/socket";
 import { v4 as uuidv4 } from 'uuid';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from "next/navigation";
+
 
 const IndexPage: React.FC = () => {
   const [board, setBoard] = useState<String[]>(Array(9).fill(null));
@@ -14,6 +13,7 @@ const IndexPage: React.FC = () => {
   const router=useRouter()
   const [type,setType]=useState<String>("Lobby")
   const [move,setMove]=useState<boolean>(true)
+  const [msg,setMsg]=useState<String>("")
 
   useEffect(()=>{
     
@@ -23,14 +23,19 @@ const IndexPage: React.FC = () => {
     }
   },[socket])
 
-  socket.on("ServerMove", ({newBoard,typeUser}) => {
+  socket.on("ServerMove", ({newBoard,typeUser,win}) => {
     setBoard(newBoard);
+    //let result=calculateWinner(newBoard)
+    //console.log(result)
+    if(win){
+      setMsg("Opponent wins")
+    }
     setType(typeUser)
     setMove(true)
   });
 
   socket.on("OpponentDisconnect",(value)=>{
-    toast.error(`${value} got Disconnected`);
+    alert("User Disconnected")
     
     socket.disconnect()
     router.push('/diptarshi')
@@ -38,16 +43,33 @@ const IndexPage: React.FC = () => {
 
   const handleClick = (index: number) => {
     const newBoard = [...board];
+
     if(!newBoard[index] && type=="Lobby" && move ){
+      console.log("X move")
       newBoard[index]="X"
       setBoard(newBoard);
-      socket.emit("UserMove", {newBoard,type});
+      
+      let result=calculateWinner(newBoard)
+      if(result=="X"){
+        setMsg("You win")
+        socket.emit("UserMove", {newBoard,type,win:true});
+      }
+      else{
+        socket.emit("UserMove", {newBoard,type,win:false});
+      }
+      
       setMove(false)
     }
     else if(!newBoard[index] && type=="Join" && move ){
+      console.log("O move")
       newBoard[index]="0"
       setBoard(newBoard);
-      socket.emit("UserMove", {newBoard,type});
+      let result=calculateWinner(newBoard)
+      if(result=="0"){
+        setMsg("You win")
+        socket.emit("UserMove", {newBoard,type,win:true});
+      }
+      socket.emit("UserMove", {newBoard,type,win:false});
       setMove(false)
     } 
     else if(!type){
@@ -55,6 +77,27 @@ const IndexPage: React.FC = () => {
     }// Toggle between null and 1 for demonstration
     
     
+  };
+  
+  const winningCombinations = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  
+  const calculateWinner = (board: any[]) => {
+    for (let combination of winningCombinations) {
+      const [a, b, c] = combination;
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return board[a];
+      }
+    }
+    return null;
   };
 
   return (
@@ -69,6 +112,9 @@ const IndexPage: React.FC = () => {
 
       <p className=" text-2xl text-center font-semibold mb-[50px]">
         Socket ID: {socket.id}
+      </p>
+      <p className=" text-2xl text-center font-semibold mb-[50px]">
+        {msg}
       </p>
       <div className="grid grid-cols-3 gap-4">
         {board.map((value, index) => (
