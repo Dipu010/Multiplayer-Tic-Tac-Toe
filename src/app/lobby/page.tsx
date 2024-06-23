@@ -46,7 +46,7 @@ export default function Home() {
       setTransport(socket.io.engine.transport.name);
       let roomIDGen=generateRoomID()
       
-      socket.emit("Lobby", { socketId: socket.id, roomID:roomIDGen });
+      socket.emit("Lobby", { socketId: socket.id, roomID:roomIDGen ,type:"Lobby"});
       setroomID(roomIDGen)
       socket.io.engine.on("upgrade", (transport: any) => {
         setTransport(transport.name);

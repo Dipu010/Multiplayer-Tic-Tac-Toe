@@ -23,8 +23,10 @@ const IndexPage: React.FC = () => {
     }
   },[socket])
 
+
   socket.on("ServerMove", ({newBoard,typeUser,win}) => {
     setBoard(newBoard);
+    console.log("server move ",win)
     //let result=calculateWinner(newBoard)
     //console.log(result)
     if(win){
@@ -35,7 +37,6 @@ const IndexPage: React.FC = () => {
   });
 
   socket.on("OpponentDisconnect",(value)=>{
-    alert("User Disconnected")
     
     socket.disconnect()
     router.push('/diptarshi')

@@ -3,8 +3,8 @@ import next from "next";
 import { Server } from "socket.io";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = process.env.DOMAIN;
-const port = process.env.PORT
+const hostname = "localhost";
+const port = 3000
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
@@ -20,15 +20,17 @@ app.prepare().then(() => {
     console.log("Connected ", socket.id);
     socket.emit("Hello", `Welcome to server ${socket.id}`);
 
-    socket.on("Lobby", ({ socketId, roomID }) => {
+    socket.on("Lobby", ({ socketId, roomID,type }) => {
       let room = io.sockets.adapter.rooms.get(roomID);
+     
       let numClients = room ? room.size : 0;
       console.log("Got event from lobby ", socket.id, "  ", numClients);
-      if (numClients < 1) {
+      if (numClients < 1 && type=="Lobby") {
         map.set(socketId, roomID);
         socket.join(roomID);
         console.log(map);
-      } else if (numClients == 1) {
+      } else if (numClients == 1 && type=="Join") {
+        socket.emit("JoinValidity",(true));
         console.log("2 people joined in the room");
         map.set(socketId, roomID);
         socket.join(roomID);
@@ -41,13 +43,16 @@ app.prepare().then(() => {
       } else if (numClients > 1) {
         console.log("Limit Exceeded");
       }
+      else if(numClients<1 && type=="Join"){
+        socket.emit("JoinValidity",(false));
+      }
     });
 
-    socket.on("UserMove", ({newBoard,type}) => {
+    socket.on("UserMove", ({newBoard,type,win}) => {
       if (map.has(socket.id)) {
         let Room_ID = map.get(socket.id);
         let typeUser=type=="Lobby"?"Join":"Lobby"
-        socket.to(Room_ID).emit("ServerMove", {newBoard,typeUser});
+        socket.to(Room_ID).emit("ServerMove", {newBoard,typeUser,win});
       }
     });
 
